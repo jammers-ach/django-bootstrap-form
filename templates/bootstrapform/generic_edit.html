@@ -1,0 +1,35 @@
+
+{%extends 'base.html'%}
+{%load staticfiles%}
+
+{%block extra_head%}
+{{f.media}}
+{%endblock%}
+
+{%block content%}
+<h1>{%if edit%}Edit{%else%}New{%endif%} - {{obj_name}}</h1>
+
+<div class='container'>
+
+    <div class="col-md-8">
+    <form role="form" method="POST" class="form-horizontal" >
+        {%csrf_token%}
+        {{f.as_bootstrap}}
+        <div class="form-group">
+            <button class="btn btn-default" ><span class="glyphicon glyphicon-floppy-disk"></span> Save</button>
+        </div>
+    </form>
+</div>
+<div class='col-md-4'>
+    {%if edit%}
+    {%with f.instance as object%}
+    {%include 'modelwithlog/object_stamps.html'%}
+    {%endwith%}
+    {%endif%}
+</div>
+
+</div>
+{%endblock%}
+
+
+
