@@ -51,6 +51,8 @@ class EditObjView(LoginRequiredMixin,View):
             #TODO custom save messages
             messages.success(request,'Saved')
             obj.log_change(request.user,'changed',form)
+            form = self.form_klass(instance=obj)
+
         else:
             messages.error(request,'There was an error in the form')
 
