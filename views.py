@@ -121,7 +121,6 @@ class TableObjView(EditObjView):
 
     def get(self,request):
         objs = self.get_objects(request)
-
         heading = self.make_table_heading(request)
         rows = [[obj.id,self.make_table_row(obj)] for obj in objs]
 
