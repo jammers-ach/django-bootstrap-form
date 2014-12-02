@@ -1,6 +1,6 @@
 '''Views for using the django class base views'''
 from django.views.generic import View
-#from django.http import HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -19,8 +19,10 @@ class EditObjView(LoginRequiredMixin,View):
     obj_klass = None
     form_klass = None
     template = 'bootstrapform/generic_edit.html'
+    ajax_template = 'bootstrapform/generic_edit_ajax.html'
     obj_name = None
     _settings_ovr = {'edit':True}
+
 
     def get_extra_settings(self):
         '''Extra settings common to every view'''
@@ -35,7 +37,11 @@ class EditObjView(LoginRequiredMixin,View):
         settings = {'f':form}
         settings.update(self.get_extra_settings())
         settings.update(self._settings_ovr)
-        return render(request,self.template,settings)
+
+        if('ajax' in request.GET and request.GET['ajax'] == 'true'):
+            return render(request,self.ajax_template,settings)
+        else:
+            return render(request,self.template,settings)
 
     def post(self,request,obj_id):
         obj = self.obj_klass.objects.get(id=obj_id)
@@ -78,6 +84,7 @@ class NewObjView(EditObjView):
     redirect_page = ''
 
     def post(self,request):
+        ajax = 'ajax' in request.POST and request.POST['ajax'] == 'true'
         form = self.form_klass(request.POST,request.FILES)
         if(form.is_valid()):
             #Save object but don't commit
@@ -88,30 +95,46 @@ class NewObjView(EditObjView):
             self.post_commit(obj)
 
             #todo custom save messages
-            messages.success(request,'added')
-            obj.log_creation(request.user,'Added',)
-            return redirect(reverse(self.redirect_page,kwargs={'obj_id':obj.id}))
+            if(ajax):
+                obj.log_creation(request.user,'Added (quickly)',)
+            else:
+                messages.success(request,'added')
+                obj.log_creation(request.user,'Added',)
+
+            if(ajax):
+                return HttpResponse('OK\n%d,%s' % (obj.id,obj)) #TODO escape the object here
+            else:
+                return redirect(reverse(self.redirect_page,kwargs={'obj_id':obj.id}))
         else:
-            messages.error(request,'There was an error in the form')
+            if(ajax):
+                messages.error(request,'There was an error in the form')
 
         settings = {'f':form}
         settings.update(self.get_extra_settings())
-        return render(request,self.template,settings)
+        if(ajax):
+            return render(request,self.ajax_template,settings)
+        else:
+            return render(request,self.template,settings)
 
     def get(self,request):
         form = self.form_klass()
         settings = {'f':form}
         settings.update(self.get_extra_settings())
         settings.update(self._settings_ovr)
-        return render(request,self.template,settings)
+        if('ajax' in request.GET and request.GET['ajax'] == 'true'):
+            return render(request,self.ajax_template,settings)
+        else:
+            return render(request,self.template,settings)
 
 class TableObjView(EditObjView):
     '''Displays all the objects as a table, with a new button
     '''
     template = 'bootstrapform/generic_list.html'
+    ajax_template = 'bootstrapform/generic_list_ajax.html'
     edit_url = ''
     new_url = ''
 
+    filter_res = True
     columns = (('ID','id'),)
 
     def get_extra_settings(self):
@@ -128,12 +151,18 @@ class TableObjView(EditObjView):
 
         settings = {'objects':objs,
                     'heading':heading,
-                    'rows':rows
+                    'rows':rows,
+                    'filter':self.filter_res,
                     }
 
         settings.update(self.get_extra_settings())
         settings.update(self._settings_ovr)
-        return render(request,self.template,settings)
+        if('ajax' in request.GET and request.GET['ajax'] == 'true'):
+            return render(request,self.ajax_template,settings)
+        else:
+            return render(request,self.template,settings)
+
+
 
 
     def get_objects(self,request):

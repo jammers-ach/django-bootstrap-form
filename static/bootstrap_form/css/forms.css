@@ -1,3 +1,7 @@
 .form-group.required input {
     background-color: #FFE4B5;
 }
+
+.modal-dialog{
+    z-index:1041;
+}
