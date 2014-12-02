@@ -16,8 +16,7 @@ class BootstrapModelForm(forms.ModelForm):
             elif( isinstance(v,forms.fields.DateField)):
                 self.fields[k].widget = BootstrapDateWidget()
             elif( isinstance(v,forms.ModelChoiceField)):
-                print v.required,v.empty_label
-                self.fields[k].widget = BootstrapModelChoiceField(qs = v.queryset)
+                self.fields[k].widget = BootstrapModelChoiceField(qs = v.queryset,required=v.required,empty_label=v.empty_label)
 
     def as_bootstrap(self):
         return bootstrap_horizontal(self)

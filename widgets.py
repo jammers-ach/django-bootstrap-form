@@ -4,6 +4,9 @@ widgets.py - Bootstrap widgets for bootstrap form
 from django import forms
 from django.utils.safestring import mark_safe
 
+class BootstrapIntegratedModelField(forms.widgets.Input):
+    pass
+
 class BootstrapModelChoiceField(forms.widgets.Select):
 
     def __init__(self,*args,**kwargs):
