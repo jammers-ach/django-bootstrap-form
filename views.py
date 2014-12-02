@@ -128,6 +128,7 @@ class TableObjView(EditObjView):
     '''Displays all the objects as a table, with a new button
     '''
     template = 'bootstrapform/generic_list.html'
+    ajax_template = 'bootstrapform/generic_list_ajax.html'
     edit_url = ''
     new_url = ''
 
@@ -153,7 +154,12 @@ class TableObjView(EditObjView):
 
         settings.update(self.get_extra_settings())
         settings.update(self._settings_ovr)
-        return render(request,self.template,settings)
+        if('ajax' in request.GET and request.GET['ajax'] == 'true'):
+            return render(request,self.ajax_template,settings)
+        else:
+            return render(request,self.template,settings)
+
+
 
 
     def get_objects(self,request):

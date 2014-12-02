@@ -4,7 +4,7 @@ var modal = '\
     <div class="modal-content">\
       <div class="modal-header">\
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>\
-        <h4 class="modal-title" id="myModalLabel">Modal title</h4>\
+        <h4 class="modal-title" id="myModalLabel">Add</h4>\
       </div>\
       <div class="modal-body">\
         ...\
@@ -18,9 +18,45 @@ var modal = '\
 </div>\
 '
 
+var modal2 = '\
+<div class="modal fade" id="search_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">\
+  <div class="modal-dialog">\
+    <div class="modal-content">\
+      <div class="modal-header">\
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>\
+        <h4 class="modal-title" id="myModalLabel">Search</h4>\
+      </div>\
+      <div class="modal-body">\
+        ...\
+      </div>\
+    </div>\
+  </div>\
+</div>\
+'
+
+
 $(function(){
 
     $('body').prepend(modal);
+    $('body').prepend(modal2);
+
+    $('.search_obj_button').click(function(e){
+        $('#search_modal').modal();
+        var url = $(this).attr('data-url');
+        var parent_input = $(this).closest('.model-picker').find('select');
+        $.ajax({
+            url:url,
+            data:'ajax=true',
+        }).done(function(data){
+            console.log(data);
+            $('#search_modal .modal-body').html(data);
+            $('#search_modal .modal-body a.search_go_link').click(function(e){
+                parent_input.val($(this).attr('data-id'));
+
+                $('#search_modal').modal('hide');
+            });
+        });
+    });
 
     $('.add_obj_button').click(function(e){
         $('#add_modal').modal();

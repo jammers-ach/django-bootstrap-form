@@ -1,0 +1,24 @@
+<table class="table table-striped table-hover">
+    <thead>
+        <tr>
+            {%for h in heading%}
+                <th>{{h}}</th>
+            {%endfor%}
+        </tr>
+    </thead>
+    <tbody>
+        {%for id,row in rows%}
+        <tr>
+            {%for r in row%}
+                {%if forloop.counter0 == 0%}
+                <td><a href='#' class='search_go_link' data-id='{{id}}'>{{r}}</a></td>
+                {%else%}
+                    <td>{{r}}</td>
+                {%endif%}
+            {%endfor%}
+        </tr>
+        {%endfor%}
+    </tbody>
+</table>
+
+
