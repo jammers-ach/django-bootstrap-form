@@ -132,6 +132,7 @@ class TableObjView(EditObjView):
     edit_url = ''
     new_url = ''
 
+    filter_res = True
     columns = (('ID','id'),)
 
     def get_extra_settings(self):
@@ -149,7 +150,8 @@ class TableObjView(EditObjView):
 
         settings = {'objects':objs,
                     'heading':heading,
-                    'rows':rows
+                    'rows':rows,
+                    'filter':self.filter_res,
                     }
 
         settings.update(self.get_extra_settings())
