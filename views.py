@@ -51,6 +51,8 @@ class EditObjView(LoginRequiredMixin,View):
             #TODO custom save messages
             messages.success(request,'Saved')
             obj.log_change(request.user,'changed',form)
+            form = self.form_klass(instance=obj)
+
         else:
             messages.error(request,'There was an error in the form')
 
@@ -121,7 +123,6 @@ class TableObjView(EditObjView):
 
     def get(self,request):
         objs = self.get_objects(request)
-
         heading = self.make_table_heading(request)
         rows = [[obj.id,self.make_table_row(obj)] for obj in objs]
 
