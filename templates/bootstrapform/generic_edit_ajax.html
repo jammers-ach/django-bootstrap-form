@@ -1,0 +1,6 @@
+<form role="form" method="POST" class="form-horizontal" >
+    {%csrf_token%}
+    <input type='hidden' name='ajax' value='true'/>
+    {{f.as_bootstrap}}
+</form>
+
