@@ -13,8 +13,12 @@ class BootstrapModelChoiceField(forms.widgets.Select):
         qs = kwargs.pop('qs')
         choices = [(o.pk,o) for o in qs]
 
-        self.has_add_url = hasattr(choices[0][1],'get_edit_url')
-        self.has_search_url = hasattr(choices[0][1],'get_search_url')
+        if(len(choices) > 0):
+            self.has_add_url = hasattr(choices[0][1],'get_edit_url')
+            self.has_search_url = hasattr(choices[0][1],'get_search_url')
+        else:
+            self.has_add_url = False
+            self.has_search_url = False
 
         if(self.has_add_url):
             self.add_url = choices[0][1].get_edit_url()
