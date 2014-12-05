@@ -16,15 +16,15 @@ class ChoicedOtherField(Field):
 
     def __init__(self, *args, **kwargs):
         #self.widget = MultipleFileWidget()
-        self.obj_mod = kwargs.pop('obj_mod')
-        self.obj_classname = kwargs.pop('obj')
-        field = kwargs.pop('field')
+        self.obj_mod = kwargs.pop('obj_mod',None)
+        self.obj_classname = kwargs.pop('obj',None)
+        field = kwargs.pop('field','')
         if(isinstance(field,str)):
             self.fields = [field]
         else:
             self.fields = field
 
-        self.default_choices  = kwargs.pop('default_choices')
+        self.default_choices  = kwargs.pop('default_choices','')
 
         super(ChoicedOtherField,self).__init__(*args,**kwargs)
 
