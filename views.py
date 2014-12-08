@@ -106,8 +106,10 @@ class NewObjView(EditObjView):
             else:
                 return redirect(reverse(self.redirect_page,kwargs={'obj_id':obj.id}))
         else:
-            if(ajax):
+            if(not ajax):
                 messages.error(request,'There was an error in the form')
+            else:
+                print request.POST,form.errors
 
         settings = {'f':form}
         settings.update(self.get_extra_settings())
