@@ -37,8 +37,14 @@ var modal2 = '\
 
 $(function(){
 
-    $('body').prepend(modal);
-    $('body').prepend(modal2);
+    if($('#add_modal').length == 0){
+        console.log('added add');
+        $('body').prepend(modal);
+    }
+    if($('#search_modal').length == 0){
+        console.log('added search');
+        $('body').prepend(modal2);
+    }
 
     $('.search_obj_button').click(function(e){
         $('#search_modal').modal();
