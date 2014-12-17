@@ -1,7 +1,11 @@
-.form-group.required input {
+.form-group.required select, .form-group.required input {
     background-color: #FFE4B5;
 }
 
 .modal-dialog{
     z-index:1041;
+}
+
+.other_option{
+    display:none;
 }

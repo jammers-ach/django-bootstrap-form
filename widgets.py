@@ -4,6 +4,64 @@ widgets.py - Bootstrap widgets for bootstrap form
 from django import forms
 from django.utils.safestring import mark_safe
 
+class BootstrapChoiceOtherField(forms.widgets.Select):
+
+
+    def __init__(self,*args,**kwargs):
+        kwargs['attrs'] = {'class':'otherchoice'}
+
+        self.klass = kwargs.pop('klass')
+        self.fields = kwargs.pop('fields')
+        self.default_choices = kwargs.pop('default_choices')
+        self.required=kwargs.pop('required')
+
+        kwargs['choices'] = ()
+
+
+        super(BootstrapChoiceOtherField,self).__init__(*args,**kwargs)
+
+    class Media:
+        #css = {
+               #'all':('bootstrap_form/css/bootstrap-datetimepicker.min.css',)
+        #}
+        js = ['bootstrap_form/js/bootstrap_form_other_choice.js'] #TODO move all the boostrapform js into one
+
+    def render(self, name, value, attrs=None,choices=()):
+        print choices
+        us = super(BootstrapChoiceOtherField,self).render(name,value,attrs)
+        input2 = '<input class="other_option form-control"  name="__%s" type="text">' % name
+
+        html = """<div>
+        %s
+        %s
+        """ % (us,input2)
+        html += "</div>"
+        return mark_safe(html)
+
+
+    def render_options(self, choices, selected_choices):
+        choices = self.make_choices()
+        return super(BootstrapChoiceOtherField,self).render_options(choices,selected_choices)
+
+
+
+    def make_choices(self):
+        vals = self.klass.objects.all().order_by(*self.fields).values_list(*self.fields,flat=True).distinct()
+
+        choices =  list(self.default_choices)
+        choices.extend([i for i in vals if i not in self.default_choices])
+        choices = sorted([ (i,i) for i in choices])
+
+
+        if(not self.required):
+            choices = [('','----')] + choices
+
+        choices += [('_-_','....other')]
+
+        return choices
+
+
+
 class BootstrapIntegratedModelField(forms.widgets.Input):
     pass
 
@@ -27,7 +85,7 @@ class BootstrapModelChoiceField(forms.widgets.Select):
 
         blank_choice = kwargs.pop('empty_label','---------')
 
-        if(kwargs.get('required',False)):
+        if(kwargs.pop('required',False)):
             kwargs['choices'] = [(None,blank_choice)] + choices
         else:
             kwargs['choices'] = choices
@@ -37,10 +95,10 @@ class BootstrapModelChoiceField(forms.widgets.Select):
     def render(self, name, value, attrs=None):
         us = super(BootstrapModelChoiceField,self).render(name,value,attrs)
 
-        html = """<div class='input-group model-picker'>
+        html = """<div class='%s model-picker'>
         %s
 
-        """ % us
+        """ % ('input-group' if self.has_add_url or self.has_search_url else '',us)
         if(self.has_add_url or self.has_search_url):
             html += "<span class='input-group-btn'>"
 
@@ -56,9 +114,6 @@ class BootstrapModelChoiceField(forms.widgets.Select):
         if(self.has_add_url or self.has_search_url):
             html += "</span>"
         html += "</div>"
-
-
-
         return mark_safe(html)
 
     class Media:

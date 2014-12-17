@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-
+from inspect import ismethod,isfunction
 
 class LoginRequiredMixin(object):
     @classmethod
@@ -106,8 +106,10 @@ class NewObjView(EditObjView):
             else:
                 return redirect(reverse(self.redirect_page,kwargs={'obj_id':obj.id}))
         else:
-            if(ajax):
+            if(not ajax):
                 messages.error(request,'There was an error in the form')
+            else:
+                print request.POST,form.errors
 
         settings = {'f':form}
         settings.update(self.get_extra_settings())
@@ -125,6 +127,15 @@ class NewObjView(EditObjView):
             return render(request,self.ajax_template,settings)
         else:
             return render(request,self.template,settings)
+
+
+def getattr_from_func(obj,attr):
+    attr = getattr(obj,attr)
+
+    if(ismethod(attr) or isfunction(attr)):
+        return attr()
+    else:
+        return attr
 
 class TableObjView(EditObjView):
     '''Displays all the objects as a table, with a new button
@@ -172,7 +183,7 @@ class TableObjView(EditObjView):
 
     def make_table_row(self,obj):
         '''Returns a row of the table for obj (obj)'''
-        return [getattr(obj,x) for x in zip(*self.columns)[1]]
+        return [getattr_from_func(obj,x) for x in zip(*self.columns)[1]]
 
     def make_table_heading(self,request):
         '''Returns the table heading '''
