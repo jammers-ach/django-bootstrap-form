@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from inspect import ismethod,isfunction
+import json
 
 class LoginRequiredMixin(object):
     @classmethod
@@ -102,7 +103,12 @@ class NewObjView(EditObjView):
                 obj.log_creation(request.user,'Added',)
 
             if(ajax):
-                return HttpResponse('OK\n%d,%s' % (obj.id,obj)) #TODO escape the object here
+                if(hasattr(obj,'to_json')):
+                    obj_json =json.dumps(obj.to_json())
+                    return HttpResponse('OK\n%d,%s\n%s' % (obj.id,obj,obj_json)) #TODO escape the object here
+                else:
+                    return HttpResponse('OK\n%d,%s' % (obj.id,obj)) #TODO escape the object here
+
             else:
                 return redirect(reverse(self.redirect_page,kwargs={'obj_id':obj.id}))
         else:
