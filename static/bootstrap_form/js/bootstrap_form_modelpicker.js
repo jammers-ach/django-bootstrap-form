@@ -34,6 +34,24 @@ var modal2 = '\
 </div>\
 '
 
+/**
+ * Loads teh searchbox with url
+ * callback(new_obj_id);
+ */
+function load_search_box(url,callback){
+    $('#search_modal').modal();
+    $.ajax({
+        url:url,
+        data:'ajax=true',
+    }).done(function(data){
+        $('#search_modal .modal-body').html(data);
+        $('#search_modal .modal-body a.search_go_link').click(function(e){
+            callback($(this).attr('data-id'),$(this).closest('tr'));
+            $('#search_modal').modal('hide');
+        });
+    });
+
+}
 
 $(function(){
 
