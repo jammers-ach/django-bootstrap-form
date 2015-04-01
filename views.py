@@ -51,9 +51,9 @@ class EditObjView(LoginRequiredMixin,View):
             #Save object but don't commit
             obj = form.save(commit=False)
             #Run pre commit, save and post commit functions
-            self.pre_commit(obj)
+            self.pre_commit(obj,request=request)
             obj.save()
-            self.post_commit(obj)
+            self.post_commit(obj,request=request)
 
             #TODO custom save messages
             messages.success(request,'Saved')
@@ -70,11 +70,11 @@ class EditObjView(LoginRequiredMixin,View):
         return render(request,self.template,settings)
 
 
-    def pre_commit(self,obj):
+    def pre_commit(self,obj,request=None):
         '''After form validation, but pre save'''
         pass
 
-    def post_commit(self,obj):
+    def post_commit(self,obj,request=None):
         '''After saving the objct'''
         pass
 
@@ -91,9 +91,9 @@ class NewObjView(EditObjView):
             #Save object but don't commit
             obj = form.save(commit=False)
             #Run pre commit, save and post commit functions
-            self.pre_commit(obj)
+            self.pre_commit(obj,request=request)
             obj.save()
-            self.post_commit(obj)
+            self.post_commit(obj,request=request)
 
             #todo custom save messages
             if(ajax):
