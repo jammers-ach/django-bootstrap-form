@@ -78,6 +78,7 @@ $(function(){
                 parent_input.val($(this).attr('data-id'));
 
                 $('#search_modal').modal('hide');
+                parent_input.trigger('change');
             });
         });
     });
@@ -105,6 +106,7 @@ $(function(){
                         parent_input.append('<option value="'+info[0]+'">'+info[1]+'</option>');
                         parent_input.val(info[0]);
                         $('#add_modal').modal('hide');
+                        parent_input.trigger('change');
                     }else{
                         $('#add_modal .modal-body').html(data);
                     }
