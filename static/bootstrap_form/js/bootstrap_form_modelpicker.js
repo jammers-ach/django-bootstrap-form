@@ -34,6 +34,24 @@ var modal2 = '\
 </div>\
 '
 
+/**
+ * Loads teh searchbox with url
+ * callback(new_obj_id);
+ */
+function load_search_box(url,callback){
+    $('#search_modal').modal();
+    $.ajax({
+        url:url,
+        data:'ajax=true',
+    }).done(function(data){
+        $('#search_modal .modal-body').html(data);
+        $('#search_modal .modal-body a.search_go_link').click(function(e){
+            callback($(this).attr('data-id'),$(this).closest('tr'));
+            $('#search_modal').modal('hide');
+        });
+    });
+
+}
 
 $(function(){
 
@@ -60,6 +78,7 @@ $(function(){
                 parent_input.val($(this).attr('data-id'));
 
                 $('#search_modal').modal('hide');
+                parent_input.trigger('change');
             });
         });
     });
@@ -87,6 +106,7 @@ $(function(){
                         parent_input.append('<option value="'+info[0]+'">'+info[1]+'</option>');
                         parent_input.val(info[0]);
                         $('#add_modal').modal('hide');
+                        parent_input.trigger('change');
                     }else{
                         $('#add_modal .modal-body').html(data);
                     }

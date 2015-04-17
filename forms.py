@@ -32,3 +32,13 @@ class BootstrapForm(forms.Form):
 
     def as_p(self):
         return "James is super cool - Ordinary form"
+
+    def as_bootstrap(self):
+        return bootstrap_horizontal(self)
+
+    class Media:
+        css = {
+            'all': ('bootstrap_form/css/forms.css',)
+        }
+
+

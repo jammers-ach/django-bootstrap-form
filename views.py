@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from inspect import ismethod,isfunction
+import json
 
 class LoginRequiredMixin(object):
     @classmethod
@@ -50,9 +51,9 @@ class EditObjView(LoginRequiredMixin,View):
             #Save object but don't commit
             obj = form.save(commit=False)
             #Run pre commit, save and post commit functions
-            self.pre_commit(obj)
+            self.pre_commit(obj,request=request)
             obj.save()
-            self.post_commit(obj)
+            self.post_commit(obj,request=request)
 
             #TODO custom save messages
             messages.success(request,'Saved')
@@ -69,11 +70,11 @@ class EditObjView(LoginRequiredMixin,View):
         return render(request,self.template,settings)
 
 
-    def pre_commit(self,obj):
+    def pre_commit(self,obj,request=None):
         '''After form validation, but pre save'''
         pass
 
-    def post_commit(self,obj):
+    def post_commit(self,obj,request=None):
         '''After saving the objct'''
         pass
 
@@ -90,9 +91,9 @@ class NewObjView(EditObjView):
             #Save object but don't commit
             obj = form.save(commit=False)
             #Run pre commit, save and post commit functions
-            self.pre_commit(obj)
+            self.pre_commit(obj,request=request)
             obj.save()
-            self.post_commit(obj)
+            self.post_commit(obj,request=request)
 
             #todo custom save messages
             if(ajax):
@@ -102,7 +103,12 @@ class NewObjView(EditObjView):
                 obj.log_creation(request.user,'Added',)
 
             if(ajax):
-                return HttpResponse('OK\n%d,%s' % (obj.id,obj)) #TODO escape the object here
+                if(hasattr(obj,'to_json')):
+                    obj_json =json.dumps(obj.to_json())
+                    return HttpResponse('OK\n%d,%s\n%s' % (obj.id,obj,obj_json)) #TODO escape the object here
+                else:
+                    return HttpResponse('OK\n%d,%s' % (obj.id,obj)) #TODO escape the object here
+
             else:
                 return redirect(reverse(self.redirect_page,kwargs={'obj_id':obj.id}))
         else:
