@@ -1,3 +1,4 @@
+{%trans i18n%}
 <div>
     {%if filter%}<div class="input-group"> 
         <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
@@ -9,7 +10,7 @@
     <thead>
         <tr>
             {%for h in heading%}
-                <th>{{h}}</th>
+            <th>{%if h%}{%trans h%}{%endif%}</th>
             {%endfor%}
         </tr>
     </thead>
