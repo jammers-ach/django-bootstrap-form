@@ -183,6 +183,8 @@ class TableObjView(EditObjView):
     filter_res = True
     columns = (('ID','id'),)
 
+    order_by = ['-id']
+
     def get_extra_settings(self):
         settings = super(TableObjView,self).get_extra_settings()
         settings['edit_url'] = self.edit_url
@@ -213,7 +215,11 @@ class TableObjView(EditObjView):
 
     def get_objects(self,request):
         '''Gets all the objects to put in the gable'''
-        return self.obj_klass.objects.order_by('-id')
+        o  = self.obj_klass.objects
+        for v in self.order_by:
+            o = o.order_by(v)
+
+        return o
 
 
     def make_table_row(self,obj):
