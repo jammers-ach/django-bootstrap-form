@@ -15,6 +15,31 @@ class LoginRequiredMixin(object):
         return login_required(view)
 
 
+
+class DeleteObjView(LoginRequiredMixin,View):
+    obj_klass = None
+    redirect_url = None
+
+
+    def get(self, request,obj_id):
+        obj = self.obj_klass.objects.get(id=obj_id)
+        #Create sucess message before deleteing
+        success_msg = '%s deleted' % obj
+
+
+        try:
+            obj.safe_delete(request.user)
+            messages.success(request,success_msg)
+        except Exception,e:
+            print e
+            messages.error(request,'Could not delete %s' % obj)
+
+        if(self.redirect_url):
+            return redirect(reverse(self.redirect_url))
+        else:
+            return redirect('/')
+
+
 class EditObjView(LoginRequiredMixin,View):
     '''Edits an exisiting object'''
     obj_klass = None
@@ -23,6 +48,7 @@ class EditObjView(LoginRequiredMixin,View):
     ajax_template = 'bootstrapform/generic_edit_ajax.html'
     obj_name = None
     _settings_ovr = {'edit':True}
+    delete_url = None
 
 
     def get_extra_settings(self):
@@ -30,12 +56,14 @@ class EditObjView(LoginRequiredMixin,View):
         if(self.obj_name == None):
             self.obj_name = self.obj_klass.__name__
 
-        return {'obj_name':self.obj_name}
+        return {'obj_name':self.obj_name,
+                }
 
     def get(self, request,obj_id):
         obj = self.obj_klass.objects.get(id=obj_id)
         form = self.form_klass(instance=obj)
         settings = {'f':form}
+        settings['delete_url'] = reverse(self.delete_url,kwargs={'obj_id':obj_id}) if self.delete_url else None
         settings.update(self.get_extra_settings())
         settings.update(self._settings_ovr)
 
@@ -64,6 +92,7 @@ class EditObjView(LoginRequiredMixin,View):
             messages.error(request,'There was an error in the form')
 
         settings = {'f':form}
+        settings['delete_url'] = reverse(self.delete_url,kwargs={'obj_id':obj_id}) if self.delete_url else None
         settings.update(self.get_extra_settings())
         settings.update(self._settings_ovr)
 
@@ -154,6 +183,8 @@ class TableObjView(EditObjView):
     filter_res = True
     columns = (('ID','id'),)
 
+    order_by = ['-id']
+
     def get_extra_settings(self):
         settings = super(TableObjView,self).get_extra_settings()
         settings['edit_url'] = self.edit_url
@@ -184,7 +215,11 @@ class TableObjView(EditObjView):
 
     def get_objects(self,request):
         '''Gets all the objects to put in the gable'''
-        return self.obj_klass.objects.order_by('-id')
+        o  = self.obj_klass.objects
+        for v in self.order_by:
+            o = o.order_by(v)
+
+        return o
 
 
     def make_table_row(self,obj):

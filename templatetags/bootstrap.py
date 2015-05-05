@@ -78,7 +78,7 @@ def render(element, markup_classes):
             for field in element.visible_fields():
                 add_input_classes(field)
 
-            template = get_template("bootstrapform/form.html")
+            template = get_template("bootstrapform/jform.html")
             context = Context({'form': element, 'classes': markup_classes})
 
     return template.render(context)
