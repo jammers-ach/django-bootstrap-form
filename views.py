@@ -51,6 +51,7 @@ class EditObjView(LoginRequiredMixin,View):
     obj_name = None
     _settings_ovr = {'edit':True}
     delete_url = None
+    redirect_page = None
 
 
     def get_extra_settings(self):
@@ -89,6 +90,9 @@ class EditObjView(LoginRequiredMixin,View):
             messages.success(request,'Saved')
             obj.log_change(request.user,'changed',form)
             form = self.form_klass(instance=obj)
+
+            if(self.redirect_page):
+                return redirect(reverse(self.redirect_page,kwargs={'obj_id':obj.id}))
 
         else:
             messages.error(request,'There was an error in the form')
