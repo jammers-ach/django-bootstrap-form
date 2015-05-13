@@ -252,3 +252,51 @@ class TableObjView(EditObjView):
     def make_table_heading(self,request):
         '''Returns the table heading '''
         return zip(*self.columns)[0]
+
+
+
+class PagedByValueObjView(TableObjView):
+    '''List all objects, but group them buy something e.g. last name'''
+    search_field = ''
+    value_itterator = '' #e.g. ['a','b','c','d','e','f']
+    default_value = '' #e.g. a
+    template = 'bootstrapform/indexed_list.html'
+    ajax_template = 'bootstrapform/indexed_list_ajax.html'
+
+    def get_filtered_objects(self,value):
+        raise NotImplementedError
+
+
+    def get_objects(self,request):
+        p = request.GET.get('p',self.default_value)
+        if(p in self.value_itterator):
+            o = self.get_filtered_objects(p)
+            for v in self.order_by:
+                o = o.order_by(v)
+            return o
+        else:
+            raise Exception('%s not in %s' % (p,self.value_itterator))
+
+    def get(self,request):
+        objs = self.get_objects(request)
+        heading = self.make_table_heading(request)
+        rows = [[obj.id,self.make_table_row(obj)] for obj in objs]
+
+        settings = {'objects':objs,
+                    'heading':heading,
+                    'rows':rows,
+                    'current_page':request.GET.get('p',self.default_value),
+                    'page_itterator':self.value_itterator,
+                    'filter':self.filter_res,
+                    }
+
+
+        settings.update(self.get_extra_settings())
+        settings.update(self._settings_ovr)
+        if('ajax' in request.GET and request.GET['ajax'] == 'true'):
+            return render(request,self.ajax_template,settings)
+        else:
+            return render(request,self.template,settings)
+
+
+
