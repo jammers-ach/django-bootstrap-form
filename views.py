@@ -1,4 +1,5 @@
 '''Views for using the django class base views'''
+from __future__ import division
 from django.views.generic import View
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -7,6 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from inspect import ismethod,isfunction
 import json
+from math import ceil
 
 class LoginRequiredMixin(object):
     @classmethod
@@ -179,6 +181,8 @@ class TableObjView(EditObjView):
     ajax_template = 'bootstrapform/generic_list_ajax.html'
     edit_url = ''
     new_url = ''
+    page = False
+    page_size = 6
 
     filter_res = True
     columns = (('ID','id'),)
@@ -201,7 +205,21 @@ class TableObjView(EditObjView):
                     'heading':heading,
                     'rows':rows,
                     'filter':self.filter_res,
+                    'use_page':self.page
                     }
+
+
+        if(self.page):
+            p = int(request.GET.get('p',0))
+            total_pages = int(ceil(self.total_objects()/self.page_size))
+
+            settings['current_page'] = p
+            if(p > 0):
+                settings['last_page'] = p -1
+            if(p < (total_pages-1) ):
+                settings['next_page'] = p +1
+
+            settings['page_itterator'] = range(total_pages)
 
         settings.update(self.get_extra_settings())
         settings.update(self._settings_ovr)
@@ -211,13 +229,18 @@ class TableObjView(EditObjView):
             return render(request,self.template,settings)
 
 
-
+    def total_objects(self):
+        return self.obj_klass.objects.all().count()
 
     def get_objects(self,request):
         '''Gets all the objects to put in the gable'''
         o  = self.obj_klass.objects
         for v in self.order_by:
             o = o.order_by(v)
+
+        if(self.page):
+            p = int(request.GET.get('p',0))
+            o = o[p*self.page_size:(p+1)*self.page_size]
 
         return o
 

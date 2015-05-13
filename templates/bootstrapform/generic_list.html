@@ -12,7 +12,19 @@
     <span class="glyphicon glyphicon-plus"></span> {%blocktrans%}New {{obj_name}}{%endblocktrans%}
 </a>
 
-<table class="table table-striped table-hover">
+{%if filter%}
+<div class="input-group"> 
+    <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
+    <input  type="text" class="filter form-control" placeholder="Filter..">
+</div>
+{%endif%}
+
+{%if use_page%}
+{%include 'bootstrapform/include/pager.html'%}
+{%endif%}
+
+
+<table class="table table-striped table-hover table-condensed">
     <thead>
         <tr>
             {%for h in heading%}
@@ -34,6 +46,24 @@
         {%endfor%}
     </tbody>
 </table>
+
+
+{%if filter%}
+<script>
+$('.filter').keyup(function (e) {
+    var us = $(this);
+    var table = us.parent().parent().find('table')
+    var rex = new RegExp(us.val(), 'i');
+    table.find('tbody tr').hide().filter(function () {
+        return rex.test($(this).text());
+    }).show();
+
+});
+
+</script>
+{%endif%}
+
+
 
 {%endblock%}
 
