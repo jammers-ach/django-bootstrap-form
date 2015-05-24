@@ -9,7 +9,7 @@ from django.core.urlresolvers import reverse
 from inspect import ismethod,isfunction
 import json
 from math import ceil
-
+from django.core.urlresolvers import NoReverseMatch
 class LoginRequiredMixin(object):
     @classmethod
     def as_view(cls, **initkwargs):
@@ -92,7 +92,11 @@ class EditObjView(LoginRequiredMixin,View):
             form = self.form_klass(instance=obj)
 
             if(self.redirect_page):
-                return redirect(reverse(self.redirect_page,kwargs={'obj_id':obj.id}))
+                try:
+                    return redirect(reverse(self.redirect_page,kwargs={'obj_id':obj.id}))
+                except NoReverseMatch,e:
+                    return redirect(reverse(self.redirect_page))
+
 
         else:
             messages.error(request,'There was an error in the form')
@@ -145,7 +149,11 @@ class NewObjView(EditObjView):
                     return HttpResponse('OK\n%d,%s' % (obj.id,obj)) #TODO escape the object here
 
             else:
-                return redirect(reverse(self.redirect_page,kwargs={'obj_id':obj.id}))
+                try:
+                    return redirect(reverse(self.redirect_page,kwargs={'obj_id':obj.id}))
+                except NoReverseMatch,e:
+                    return redirect(reverse(self.redirect_page))
+
         else:
             if(not ajax):
                 messages.error(request,'There was an error in the form')

@@ -1,0 +1,12 @@
+/**
+ * Extentions to bootstrap for super small tables
+ */
+
+
+.table-xs{
+    font-size:10pt;
+}
+
+.table-xs td{
+    padding:1px !important;
+}
