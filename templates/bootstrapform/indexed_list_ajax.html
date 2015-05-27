@@ -1,12 +1,19 @@
 {%load i18n%}
-<div class='results_table'>
-    {%if filter%}<div class="input-group"> 
-        <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
+<nav>
+  <ul class="pagination">
+    {%for i in page_itterator%}
+    <li {%if i == current_page%}class="active"{%endif%}><a href="?p={{i}}">{{i}}</a></li>
+    {%endfor%}
+    </ul>
+</nav>
+{%if filter%}
+<div class="input-group"> 
+    <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
     <input  type="text" class="filter form-control" placeholder="Filter..">
-    </div>
-    {%endif%}
+</div>
+{%endif%}
 
-<table class="table table-striped table-hover">
+<table class="table table-striped table-hover table-condensed">
     <thead>
         <tr>
             {%for h in heading%}
@@ -28,20 +35,23 @@
         {%endfor%}
     </tbody>
 </table>
-</div>
 
 {%if filter%}
 <script>
-$('.filter').keyup(function () {
+$('.filter').keyup(function (e) {
     var us = $(this);
     var table = us.parent().parent().find('table')
     var rex = new RegExp(us.val(), 'i');
     table.find('tbody tr').hide().filter(function () {
         return rex.test($(this).text());
     }).show();
+
 });
 
 </script>
 {%endif%}
+
+
+
 
 
