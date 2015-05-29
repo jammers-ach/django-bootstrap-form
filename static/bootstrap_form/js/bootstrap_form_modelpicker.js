@@ -1,6 +1,6 @@
 var modal = '\
 <div class="modal fade" id="add_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">\
-  <div class="modal-dialog">\
+  <div class="modal-dialog modal-lg">\
     <div class="modal-content">\
       <div class="modal-header">\
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>\
@@ -20,7 +20,7 @@ var modal = '\
 
 var modal2 = '\
 <div class="modal fade" id="search_modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">\
-  <div class="modal-dialog">\
+  <div class="modal-dialog modal-lg">\
     <div class="modal-content">\
       <div class="modal-header">\
         <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>\
@@ -45,7 +45,7 @@ function load_search_box(url,callback){
         data:'ajax=true',
     }).done(function(data){
         $('#search_modal .modal-body').html(data);
-        $('#search_modal .modal-body a.search_go_link').click(function(e){
+        $('#search_modal').on('click','.modal-body a.search_go_link', function(e){
             callback($(this).attr('data-id'),$(this).closest('tr'));
             $('#search_modal').modal('hide');
         });

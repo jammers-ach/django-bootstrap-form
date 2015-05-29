@@ -1,5 +1,5 @@
 {%load i18n%}
-<div>
+<div class='results_table'>
     {%if filter%}<div class="input-group"> 
         <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
     <input  type="text" class="filter form-control" placeholder="Filter..">
@@ -39,7 +39,6 @@ $('.filter').keyup(function () {
     table.find('tbody tr').hide().filter(function () {
         return rex.test($(this).text());
     }).show();
-
 });
 
 </script>

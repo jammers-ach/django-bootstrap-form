@@ -6,23 +6,25 @@
 {%endblock%}
 
 {%block content%}
-<h1>{%blocktrans%}All {{obj_name}}s{%endblocktrans%}</h1>
+<h1>{%blocktrans%}{{obj_name}} - {{current_page}}{%endblocktrans%}</h1>
 
 <a class="btn btn-default btn-md " role="button" href="{%url new_url%}">
     <span class="glyphicon glyphicon-plus"></span> {%blocktrans%}New {{obj_name}}{%endblocktrans%}
 </a>
 
+<nav>
+  <ul class="pagination">
+    {%for i in page_itterator%}
+    <li {%if i == current_page%}class="active"{%endif%}><a href="?p={{i}}">{{i}}</a></li>
+    {%endfor%}
+    </ul>
+</nav>
 {%if filter%}
 <div class="input-group"> 
     <span class="input-group-addon"><span class="glyphicon glyphicon-search"></span></span>
     <input  type="text" class="filter form-control" placeholder="Filter..">
 </div>
 {%endif%}
-
-{%if use_page%}
-{%include 'bootstrapform/include/pager.html'%}
-{%endif%}
-
 
 <table class="table table-striped table-hover table-condensed">
     <thead>
@@ -47,7 +49,6 @@
     </tbody>
 </table>
 
-
 {%if filter%}
 <script>
 $('.filter').keyup(function (e) {
@@ -62,7 +63,6 @@ $('.filter').keyup(function (e) {
 
 </script>
 {%endif%}
-
 
 
 {%endblock%}

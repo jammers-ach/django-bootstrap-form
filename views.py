@@ -1,4 +1,5 @@
 '''Views for using the django class base views'''
+from __future__ import division
 from django.views.generic import View
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -7,7 +8,8 @@ from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from inspect import ismethod,isfunction
 import json
-
+from math import ceil
+from django.core.urlresolvers import NoReverseMatch
 class LoginRequiredMixin(object):
     @classmethod
     def as_view(cls, **initkwargs):
@@ -49,6 +51,7 @@ class EditObjView(LoginRequiredMixin,View):
     obj_name = None
     _settings_ovr = {'edit':True}
     delete_url = None
+    redirect_page = None
 
 
     def get_extra_settings(self):
@@ -87,6 +90,13 @@ class EditObjView(LoginRequiredMixin,View):
             messages.success(request,'Saved')
             obj.log_change(request.user,'changed',form)
             form = self.form_klass(instance=obj)
+
+            if(self.redirect_page):
+                try:
+                    return redirect(reverse(self.redirect_page,kwargs={'obj_id':obj.id}))
+                except NoReverseMatch,e:
+                    return redirect(reverse(self.redirect_page))
+
 
         else:
             messages.error(request,'There was an error in the form')
@@ -139,7 +149,11 @@ class NewObjView(EditObjView):
                     return HttpResponse('OK\n%d,%s' % (obj.id,obj)) #TODO escape the object here
 
             else:
-                return redirect(reverse(self.redirect_page,kwargs={'obj_id':obj.id}))
+                try:
+                    return redirect(reverse(self.redirect_page,kwargs={'obj_id':obj.id}))
+                except NoReverseMatch,e:
+                    return redirect(reverse(self.redirect_page))
+
         else:
             if(not ajax):
                 messages.error(request,'There was an error in the form')
@@ -179,6 +193,8 @@ class TableObjView(EditObjView):
     ajax_template = 'bootstrapform/generic_list_ajax.html'
     edit_url = ''
     new_url = ''
+    page = False
+    page_size = 6
 
     filter_res = True
     columns = (('ID','id'),)
@@ -201,7 +217,21 @@ class TableObjView(EditObjView):
                     'heading':heading,
                     'rows':rows,
                     'filter':self.filter_res,
+                    'use_page':self.page
                     }
+
+
+        if(self.page):
+            p = int(request.GET.get('p',0))
+            total_pages = int(ceil(self.total_objects()/self.page_size))
+
+            settings['current_page'] = p
+            if(p > 0):
+                settings['last_page'] = p -1
+            if(p < (total_pages-1) ):
+                settings['next_page'] = p +1
+
+            settings['page_itterator'] = range(total_pages)
 
         settings.update(self.get_extra_settings())
         settings.update(self._settings_ovr)
@@ -211,13 +241,18 @@ class TableObjView(EditObjView):
             return render(request,self.template,settings)
 
 
-
+    def total_objects(self):
+        return self.obj_klass.objects.all().count()
 
     def get_objects(self,request):
         '''Gets all the objects to put in the gable'''
         o  = self.obj_klass.objects
         for v in self.order_by:
             o = o.order_by(v)
+
+        if(self.page):
+            p = int(request.GET.get('p',0))
+            o = o[p*self.page_size:(p+1)*self.page_size]
 
         return o
 
@@ -229,3 +264,53 @@ class TableObjView(EditObjView):
     def make_table_heading(self,request):
         '''Returns the table heading '''
         return zip(*self.columns)[0]
+
+
+
+class PagedByValueObjView(TableObjView):
+    '''List all objects, but group them buy something e.g. last name'''
+    search_field = ''
+    value_itterator = '' #e.g. ['a','b','c','d','e','f']
+    default_value = '' #e.g. a
+    template = 'bootstrapform/indexed_list.html'
+    ajax_template = 'bootstrapform/indexed_list_ajax.html'
+
+    def get_filtered_objects(self,value):
+        raise NotImplementedError
+
+
+    def get_objects(self,request):
+        p = request.GET.get('p',self.default_value)
+        if(p in self.value_itterator):
+            o = self.get_filtered_objects(p)
+            for v in self.order_by:
+                o = o.order_by(v)
+            return o
+        else:
+            raise Exception('%s not in %s' % (p,self.value_itterator))
+
+    def get(self,request):
+        objs = self.get_objects(request)
+        heading = self.make_table_heading(request)
+        rows = [[obj.id,self.make_table_row(obj)] for obj in objs]
+
+        settings = {'objects':objs,
+                    'heading':heading,
+                    'rows':rows,
+                    'current_page':request.GET.get('p',self.default_value),
+                    'page_itterator':self.value_itterator,
+                    'filter':self.filter_res,
+                    }
+
+
+        settings.update(self.get_extra_settings())
+        settings.update(self._settings_ovr)
+        if('ajax' in request.GET and request.GET['ajax'] == 'true'):
+            return render(request,self.ajax_template,settings)
+        else:
+            return render(request,self.template,settings)
+
+
+
+
+

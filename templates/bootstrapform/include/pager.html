@@ -1,0 +1,19 @@
+<nav>
+  <ul class="pagination">
+      <li {%if not last_page%}class="disabled"{%endif%}>
+      <a href="{%if last_page%}?p={{last_page}}{%endif%}" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+
+    {%for i in page_itterator%}
+    <li {%if i == current_page%}class="active"{%endif%}><a href="?p={{i}}">{{forloop.counter}}</a></li>
+    {%endfor%}
+    <li {%if not next_page%}class="disabled"{%endif%}>
+      <a href="{%if next_page%}?p={{next_page}}{%endif%}"  aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
