@@ -49,4 +49,15 @@ var warning_modal = $(' \
 </div><!-- /.modal --> \
 ')
     $('body').prepend(warning_modal);
+
+
+    $('.popup-confirm').click(function(e){
+        e.preventDefault();
+        var msg = $(this).attr('data-warning');
+        var href = $(this).attr('href');
+        bs_show_yes_no(msg,'Are you sure?',function(){
+            window.location.href= href;
+        });
+
+    });
 });
