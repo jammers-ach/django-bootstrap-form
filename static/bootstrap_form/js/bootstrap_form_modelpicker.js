@@ -45,7 +45,7 @@ function load_search_box(url,callback){
         data:'ajax=true',
     }).done(function(data){
         $('#search_modal .modal-body').html(data);
-        $('#search_modal').on('click','.modal-body a.search_go_link', function(e){
+        $('#search_modal').one('click','.modal-body a.search_go_link', function(e){
             callback($(this).attr('data-id'),$(this).closest('tr'));
             $('#search_modal').modal('hide');
         });
